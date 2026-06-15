@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Math Sprint - Advanced Drill</title>
+    <title>Math Sprint Platform</title>
     <style>
         :root {
             --primary: #534AB7;
@@ -12,9 +12,51 @@
             --success: #1D9E75;
             --border: #E5E7EB;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: var(--bg); }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: var(--bg); 
+        }
+        
+        /* Premium Tab System styling */
+        .tab-wrapper {
+            display: flex;
+            background: #E5E7EB;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            width: 360px;
+            box-sizing: border-box;
+        }
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 9px;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
         .card { background: white; padding: 2.5rem 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 360px; box-sizing: border-box; }
         
+        /* Container Visibility */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         /* Typography Updates */
         h2 { margin-top: 0; margin-bottom: 0.5rem; color: var(--text); font-size: 1.6rem; font-weight: 700; }
         .subtitle { color: var(--text-light); font-size: 0.95rem; margin-bottom: 1.5rem; font-weight: 500; }
@@ -33,12 +75,12 @@
         .btn { background: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; width: 100%; box-sizing: border-box; transition: background 0.2s ease; margin-top: 0.5rem; }
         .btn:hover { background: #433aa1; }
         
-        /* Custom Modern Mode Selector Segment Cards */
+        /* Modern Mode Selector Segment Cards */
         .mode-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
         .mode-card { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; text-align: left; }
         .mode-card:hover { border-color: #C7C3EB; background: #FAF9FE; }
         
-        /* Hide native radio fully */
+        /* Hide native radio */
         .mode-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
         
         .mode-details { display: flex; flex-direction: column; }
@@ -56,193 +98,369 @@
 </head>
 <body>
 
+<!-- Unified Top Navigation Tab Bar -->
+<div class="tab-wrapper">
+    <button class="tab-btn active" onclick="switchTab('basic')">Math Sprint</button>
+    <button class="tab-btn" onclick="switchTab('advanced')">Advanced Sprint</button>
+</div>
+
 <div class="card">
-    <div id="game-header" style="display:none;">
-        <div class="timer" id="timer">90s</div>
-        <div class="stats">
-            <span>Correct: <span id="correct">0</span></span>
-            <span>Accuracy: <span id="accuracy">0%</span></span>
-        </div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-    </div>
     
-    <div id="game-zone" style="display:none;">
-        <div class="problem" id="problem">? × ?</div>
-        <input type="text" pattern="[0-9]*" inputmode="numeric" id="answer" autocomplete="off">
-        <div class="feedback" id="feedback">Type the answer!</div>
-    </div>
-
-    <div id="start-zone">
-        <h2>Advanced Math Sprint</h2>
-        <div class="subtitle">Goal: Hit 20 Correct Answers</div>
+    <!-- ==================================================== -->
+    <!-- TAB 1: MATH SPRINT (BASIC)                           -->
+    <!-- ==================================================== -->
+    <div id="tab-basic" class="tab-content active">
+        <div id="basic-header" style="display:none;">
+            <div class="timer" id="basic-timer">60s</div>
+            <div class="stats">
+                <span>Correct: <span id="basic-correct">0</span></span>
+                <span>Accuracy: <span id="basic-accuracy">0%</span></span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="basic-progress-bar"></div>
+            </div>
+        </div>
         
-        <div class="mode-container">
-            <!-- Card 1: Multiplication -->
-            <label class="mode-card selected" onclick="selectMode(this)">
-                <input type="radio" name="gameMode" value="multiplication" checked>
-                <div class="mode-details">
-                    <span class="mode-title">Multiplication Only</span>
-                    <span class="mode-meta">2-digit × 1-digit</span>
-                </div>
-                <span class="mode-badge">80s</span>
-            </label>
-
-            <!-- Card 2: Division -->
-            <label class="mode-card" onclick="selectMode(this)">
-                <input type="radio" name="gameMode" value="division">
-                <div class="mode-details">
-                    <span class="mode-title">Division Only</span>
-                    <span class="mode-meta">2-3 digit ÷ 1-digit</span>
-                </div>
-                <span class="mode-badge">90s</span>
-            </label>
-
-            <!-- Card 3: Combined Mix -->
-            <label class="mode-card" onclick="selectMode(this)">
-                <input type="radio" name="gameMode" value="combined">
-                <div class="mode-details">
-                    <span class="mode-title">Combined Mix</span>
-                    <span class="mode-meta">Randomly interleaved</span>
-                </div>
-                <span class="mode-badge">90s</span>
-            </label>
+        <div id="basic-game-zone" style="display:none;">
+            <div class="problem" id="basic-problem">? ± ?</div>
+            <input type="text" pattern="[0-9]*" inputmode="numeric" id="basic-answer" autocomplete="off">
+            <div class="feedback" id="basic-feedback">Type the answer!</div>
         </div>
 
-        <button class="btn" onclick="startGame()">Start Drill</button>
+        <div id="basic-start-zone">
+            <h2>Math Sprint</h2>
+            <div class="subtitle">Goal: 30 Correct Answers</div>
+            
+            <div class="mode-container">
+                <label class="mode-card selected" onclick="selectCardDesign(this)">
+                    <input type="radio" name="basicMode" value="addition" checked>
+                    <div class="mode-details">
+                        <span class="mode-title">Addition Only</span>
+                        <span class="mode-meta">[11-24] + [1-9]</span>
+                    </div>
+                    <span class="mode-badge">60s</span>
+                </label>
+
+                <label class="mode-card" onclick="selectCardDesign(this)">
+                    <input type="radio" name="basicMode" value="subtraction">
+                    <div class="mode-details">
+                        <span class="mode-title">Subtraction Only</span>
+                        <span class="mode-meta">Numbers 1 to 24</span>
+                    </div>
+                    <span class="mode-badge">60s</span>
+                </label>
+
+                <label class="mode-card" onclick="selectCardDesign(this)">
+                    <input type="radio" name="basicMode" value="combined">
+                    <div class="mode-details">
+                        <span class="mode-title">Combined Mix</span>
+                        <span class="mode-meta">Randomly interleaved</span>
+                    </div>
+                    <span class="mode-badge">60s</span>
+                </label>
+            </div>
+
+            <button class="btn" onclick="basicSprint.start()">Start Drill</button>
+        </div>
     </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 2: ADVANCED MATH SPRINT                         -->
+    <!-- ==================================================== -->
+    <div id="tab-advanced" class="tab-content">
+        <div id="advanced-header" style="display:none;">
+            <div class="timer" id="advanced-timer">90s</div>
+            <div class="stats">
+                <span>Correct: <span id="advanced-correct">0</span></span>
+                <span>Accuracy: <span id="advanced-accuracy">0%</span></span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="advanced-progress-bar"></div>
+            </div>
+        </div>
+        
+        <div id="advanced-game-zone" style="display:none;">
+            <div class="problem" id="advanced-problem">? × ?</div>
+            <input type="text" pattern="[0-9]*" inputmode="numeric" id="advanced-answer" autocomplete="off">
+            <div class="feedback" id="advanced-feedback">Type the answer!</div>
+        </div>
+
+        <div id="advanced-start-zone">
+            <h2>Advanced Math Sprint</h2>
+            <div class="subtitle">Goal: Hit 20 Correct Answers</div>
+            
+            <div class="mode-container">
+                <label class="mode-card selected" onclick="selectCardDesign(this)">
+                    <input type="radio" name="advancedMode" value="multiplication" checked>
+                    <div class="mode-details">
+                        <span class="mode-title">Multiplication Only</span>
+                        <span class="mode-meta">2-digit × 1-digit</span>
+                    </div>
+                    <span class="mode-badge">80s</span>
+                </label>
+
+                <label class="mode-card" onclick="selectCardDesign(this)">
+                    <input type="radio" name="advancedMode" value="division">
+                    <div class="mode-details">
+                        <span class="mode-title">Division Only</span>
+                        <span class="mode-meta">2-3 digit ÷ 1-digit</span>
+                    </div>
+                    <span class="mode-badge">90s</span>
+                </label>
+
+                <label class="mode-card" onclick="selectCardDesign(this)">
+                    <input type="radio" name="advancedMode" value="combined">
+                    <div class="mode-details">
+                        <span class="mode-title">Combined Mix</span>
+                        <span class="mode-meta">Randomly interleaved</span>
+                    </div>
+                    <span class="mode-badge">90s</span>
+                </label>
+            </div>
+
+            <button class="btn" onclick="advancedSprint.start()">Start Drill</button>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    let score = 0;
-    let total = 0;
-    let timeLeft = 90;
-    let timerId = null;
-    let currentAns = 0;
-    let chosenMode = 'multiplication';
-    const GOAL = 20;
+    // System Tab Switcher Engine
+    function switchTab(target) {
+        // Stop any running sprints when switching view modes
+        basicSprint.resetToMenu();
+        advancedSprint.resetToMenu();
 
-    const probEl = document.getElementById('problem');
-    const ansEl = document.getElementById('answer');
-    const feedEl = document.getElementById('feedback');
-    const scoreEl = document.getElementById('correct');
-    const accEl = document.getElementById('accuracy');
-    const timerEl = document.getElementById('timer');
-    const progressBar = document.getElementById('progress-bar');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if (target === 'basic') {
+            document.querySelector("[onclick=\"switchTab('basic')\"]").classList.add('active');
+            document.getElementById('tab-basic').classList.add('active');
+        } else {
+            document.querySelector("[onclick=\"switchTab('advanced')\"]").classList.add('active');
+            document.getElementById('tab-advanced').classList.add('active');
+        }
+    }
 
-    // UI Interactive Selection Engine
-    function selectMode(element) {
-        // Remove class from all cards
-        document.querySelectorAll('.mode-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        // Add class to currently clicked container element
+    // Segment Card Dynamic Highlighting
+    function selectCardDesign(element) {
+        const structuralSiblings = element.parentElement.querySelectorAll('.mode-card');
+        structuralSiblings.forEach(card => card.classList.remove('selected'));
         element.classList.add('selected');
     }
 
-    function generateProblem() {
-        let currentType = chosenMode;
+    // ====================================================
+    // BASIC SPRINT CONTROLLER (TAB 1)                     -->
+    // ====================================================
+    const basicSprint = {
+        score: 0, total: 0, timeLeft: 60, timerId: null, currentAns: 0, chosenMode: 'addition', GOAL: 30,
         
-        if (chosenMode === 'combined') {
-            currentType = Math.random() < 0.5 ? 'multiplication' : 'division';
-        }
-
-        if (currentType === 'multiplication') {
-            let a = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-            let b = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+        generate: function() {
+            let currentType = this.chosenMode;
+            if (this.chosenMode === 'combined') {
+                currentType = Math.random() < 0.5 ? 'addition' : 'subtraction';
+            }
+            if (currentType === 'addition') {
+                let a = Math.floor(Math.random() * (24 - 11 + 1)) + 11;
+                let b = Math.floor(Math.random() * 9) + 1;
+                this.currentAns = a + b;
+                document.getElementById('basic-problem').textContent = `${a} + ${b}`;
+            } else {
+                let a = Math.floor(Math.random() * 24) + 1;
+                let b = Math.floor(Math.random() * 24) + 1;
+                if (a < b) [a, b] = [b, a];
+                this.currentAns = a - b;
+                document.getElementById('basic-problem').textContent = `${a} - ${b}`;
+            }
+            document.getElementById('basic-answer').value = '';
+        },
+        
+        start: function() {
+            this.chosenMode = document.querySelector('input[name="basicMode"]:checked').value;
+            this.score = 0; this.total = 0; this.timeLeft = 60;
+            document.getElementById('basic-correct').textContent = '0';
+            document.getElementById('basic-accuracy').textContent = '0%';
+            document.getElementById('basic-timer').textContent = '60s';
+            document.getElementById('basic-progress-bar').style.width = '0%';
+            document.getElementById('basic-feedback').textContent = 'Keep going!';
             
-            currentAns = a * b;
-            probEl.textContent = `${a} × ${b}`;
-        } else {
-            let divisor = Math.floor(Math.random() * (9 - 2 + 1)) + 2; 
-            let targetQuotient = Math.floor(Math.random() * (120 - 10 + 1)) + 10;
-            let dividend = targetQuotient * divisor;
+            document.getElementById('basic-start-zone').style.display = 'none';
+            document.getElementById('basic-header').style.display = 'block';
+            document.getElementById('basic-game-zone').style.display = 'block';
             
-            currentAns = targetQuotient;
-            probEl.textContent = `${dividend} ÷ ${divisor}`;
+            this.generate();
+            document.getElementById('basic-answer').focus();
+            
+            this.timerId = setInterval(() => {
+                this.timeLeft--;
+                document.getElementById('basic-timer').textContent = this.timeLeft + 's';
+                if (this.timeLeft <= 0) this.end();
+            }, 1000);
+        },
+        
+        updateProgress: function() {
+            let pct = (this.score / this.GOAL) * 100;
+            if (pct > 100) pct = 100;
+            document.getElementById('basic-progress-bar').style.width = pct + '%';
+        },
+        
+        end: function() {
+            clearInterval(this.timerId);
+            document.getElementById('basic-game-zone').style.display = 'none';
+            document.getElementById('basic-header').style.display = 'none';
+            document.getElementById('basic-start-zone').style.display = 'block';
+            
+            let finalAcc = this.total > 0 ? Math.round((this.score / this.total) * 100) : 0;
+            let statusHTML = this.score >= this.GOAL 
+                ? `<h2 style="color: var(--success);">Goal Smashed! 🎉</h2>` 
+                : `<h2 style="color: #D85A30;">So Close!</h2>`;
+
+            document.getElementById('basic-start-zone').innerHTML = `
+                ${statusHTML}
+                <p>You answered <strong>${this.score}</strong> correctly out of ${this.total} attempts.</p>
+                <p>Accuracy: ${finalAcc}%</p>
+                <p style="font-size:0.9rem; color:#6B7280; margin-bottom:2rem;">Target Goal was: ${this.GOAL}</p>
+                <button class="btn" onclick="location.reload()">Try Again</button>
+            `;
+        },
+        
+        resetToMenu: function() {
+            clearInterval(this.timerId);
+            document.getElementById('basic-game-zone').style.display = 'none';
+            document.getElementById('basic-header').style.display = 'none';
+            document.getElementById('basic-start-zone').style.display = 'block';
         }
+    };
+
+    // ====================================================
+    // ADVANCED SPRINT CONTROLLER (TAB 2)                 -->
+    // ====================================================
+    const advancedSprint = {
+        score: 0, total: 0, timeLeft: 90, timerId: null, currentAns: 0, chosenMode: 'multiplication', GOAL: 20,
         
-        ansEl.value = '';
-    }
+        generate: function() {
+            let currentType = this.chosenMode;
+            if (this.chosenMode === 'combined') {
+                currentType = Math.random() < 0.5 ? 'multiplication' : 'division';
+            }
+            if (currentType === 'multiplication') {
+                let a = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+                let b = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+                this.currentAns = a * b;
+                document.getElementById('advanced-problem').textContent = `${a} × ${b}`;
+            } else {
+                let divisor = Math.floor(Math.random() * (9 - 2 + 1)) + 2; 
+                let targetQuotient = Math.floor(Math.random() * (120 - 10 + 1)) + 10;
+                let dividend = targetQuotient * divisor;
+                this.currentAns = targetQuotient;
+                document.getElementById('advanced-problem').textContent = `${dividend} ÷ ${divisor}`;
+            }
+            document.getElementById('advanced-answer').value = '';
+        },
+        
+        start: function() {
+            this.chosenMode = document.querySelector('input[name="advancedMode"]:checked').value;
+            this.timeLeft = (this.chosenMode === 'multiplication') ? 80 : 90;
+            this.score = 0; this.total = 0;
+            document.getElementById('advanced-correct').textContent = '0';
+            document.getElementById('advanced-accuracy').textContent = '0%';
+            document.getElementById('advanced-timer').textContent = this.timeLeft + 's';
+            document.getElementById('advanced-progress-bar').style.width = '0%';
+            document.getElementById('advanced-feedback').textContent = 'Go!';
+            
+            document.getElementById('advanced-start-zone').style.display = 'none';
+            document.getElementById('advanced-header').style.display = 'block';
+            document.getElementById('advanced-game-zone').style.display = 'block';
+            
+            this.generate();
+            document.getElementById('advanced-answer').focus();
+            
+            this.timerId = setInterval(() => {
+                this.timeLeft--;
+                document.getElementById('advanced-timer').textContent = this.timeLeft + 's';
+                if (this.timeLeft <= 0) this.end();
+            }, 1000);
+        },
+        
+        updateProgress: function() {
+            let pct = (this.score / this.GOAL) * 100;
+            if (pct > 100) pct = 100;
+            document.getElementById('advanced-progress-bar').style.width = pct + '%';
+        },
+        
+        end: function() {
+            clearInterval(this.timerId);
+            document.getElementById('advanced-game-zone').style.display = 'none';
+            document.getElementById('advanced-header').style.display = 'none';
+            document.getElementById('advanced-start-zone').style.display = 'block';
+            
+            let finalAcc = this.total > 0 ? Math.round((this.score / this.total) * 100) : 0;
+            let statusHTML = this.score >= this.GOAL 
+                ? `<h2 style="color: var(--success);">Goal Smashed! 🎉</h2>` 
+                : `<h2 style="color: #D85A30;">So Close!</h2>`;
 
-    function startGame() {
-        chosenMode = document.querySelector('input[name="gameMode"]:checked').value;
-
-        if (chosenMode === 'multiplication') {
-            timeLeft = 80;
-        } else {
-            timeLeft = 90;
+            document.getElementById('advanced-start-zone').innerHTML = `
+                ${statusHTML}
+                <p>You answered <strong>${this.score}</strong> correctly out of ${this.total} attempts.</p>
+                <p>Accuracy: ${finalAcc}%</p>
+                <p style="font-size:0.9rem; color:#6B7280; margin-bottom:2rem;">Target Goal was: ${this.GOAL}</p>
+                <button class="btn" onclick="location.reload()">Try Again</button>
+            `;
+        },
+        
+        resetToMenu: function() {
+            clearInterval(this.timerId);
+            document.getElementById('advanced-game-zone').style.display = 'none';
+            document.getElementById('advanced-header').style.display = 'none';
+            document.getElementById('advanced-start-zone').style.display = 'block';
         }
+    };
 
-        score = 0;
-        total = 0;
-        scoreEl.textContent = '0';
-        accEl.textContent = '0%';
-        timerEl.textContent = timeLeft + 's';
-        progressBar.style.width = '0%';
-        feedEl.textContent = 'Go!';
-        
-        document.getElementById('start-zone').style.display = 'none';
-        document.getElementById('game-header').style.display = 'block';
-        document.getElementById('game-zone').style.display = 'block';
-        
-        generateProblem();
-        ansEl.focus();
-        
-        timerId = setInterval(() => {
-            timeLeft--;
-            timerEl.textContent = timeLeft + 's';
-            if (timeLeft <= 0) endGame();
-        }, 1000);
-    }
-
-    function updateProgressBar() {
-        let percentage = (score / GOAL) * 100;
-        if (percentage > 100) percentage = 100; 
-        progressBar.style.width = percentage + '%';
-    }
-
-    function endGame() {
-        clearInterval(timerId);
-        document.getElementById('game-zone').style.display = 'none';
-        document.getElementById('game-header').style.display = 'none';
-        document.getElementById('start-zone').style.display = 'block';
-        
-        let finalAcc = total > 0 ? Math.round((score / total) * 100) : 0;
-        let goalStatus = score >= GOAL 
-            ? `<h2 style="color: var(--success);">Goal Smashed! 🎉</h2>` 
-            : `<h2 style="color: #D85A30;">So Close!</h2>`;
-
-        document.getElementById('start-zone').innerHTML = `
-            ${goalStatus}
-            <p style="margin-bottom:2rem;">You answered <strong>${score}</strong> correctly out of ${total} attempts with an accuracy of <strong>${finalAcc}%</strong>.</p>
-            <button class="btn" onclick="location.reload()">Try Again</button>
-        `;
-    }
-
-    ansEl.addEventListener('input', () => {
-        const userAns = parseInt(ansEl.value);
-        
-        if (!isNaN(userAns)) {
-            if (userAns === currentAns) {
-                score++;
-                total++;
-                scoreEl.textContent = score;
-                accEl.textContent = Math.round((score / total) * 100) + '%';
-                updateProgressBar();
-                generateProblem(); 
+    // ====================================================
+    // INPUT LISTENERS ENGINE                             -->
+    // ====================================================
+    
+    // Basic Tab Listeners
+    document.getElementById('basic-answer').addEventListener('input', () => {
+        const ans = parseInt(document.getElementById('basic-answer').value);
+        if (!isNaN(ans) && ans === basicSprint.currentAns) {
+            basicSprint.score++; basicSprint.total++;
+            document.getElementById('basic-correct').textContent = basicSprint.score;
+            document.getElementById('basic-accuracy').textContent = Math.round((basicSprint.score / basicSprint.total) * 100) + '%';
+            basicSprint.updateProgress();
+            basicSprint.generate();
+        }
+    });
+    document.getElementById('basic-answer').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && document.getElementById('basic-answer').value !== '') {
+            const ans = parseInt(document.getElementById('basic-answer').value);
+            if (ans !== basicSprint.currentAns) {
+                basicSprint.total++;
+                document.getElementById('basic-accuracy').textContent = Math.round((basicSprint.score / basicSprint.total) * 100) + '%';
+                document.getElementById('basic-answer').value = '';
             }
         }
     });
 
-    ansEl.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter' && ansEl.value !== '') {
-            const userAns = parseInt(ansEl.value);
-            if (userAns !== currentAns) {
-                total++;
-                accEl.textContent = Math.round((score / total) * 100) + '%';
-                ansEl.value = ''; 
+    // Advanced Tab Listeners
+    document.getElementById('advanced-answer').addEventListener('input', () => {
+        const ans = parseInt(document.getElementById('advanced-answer').value);
+        if (!isNaN(ans) && ans === advancedSprint.currentAns) {
+            advancedSprint.score++; advancedSprint.total++;
+            document.getElementById('advanced-correct').textContent = advancedSprint.score;
+            document.getElementById('advanced-accuracy').textContent = Math.round((advancedSprint.score / advancedSprint.total) * 100) + '%';
+            advancedSprint.updateProgress();
+            advancedSprint.generate();
+        }
+    });
+    document.getElementById('advanced-answer').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && document.getElementById('advanced-answer').value !== '') {
+            const ans = parseInt(document.getElementById('advanced-answer').value);
+            if (ans !== advancedSprint.currentAns) {
+                advancedSprint.total++;
+                document.getElementById('advanced-accuracy').textContent = Math.round((advancedSprint.score / advancedSprint.total) * 100) + '%';
+                document.getElementById('advanced-answer').value = '';
             }
         }
     });
