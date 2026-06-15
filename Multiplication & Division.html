@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Math Sprint - Advanced Drill</title>
+    <style>
+        :root {
+            --primary: #534AB7;
+            --primary-light: #EEEDFA;
+            --bg: #F9FAFB;
+            --text: #111827;
+            --text-light: #6B7280;
+            --success: #1D9E75;
+            --border: #E5E7EB;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: var(--bg); }
+        .card { background: white; padding: 2.5rem 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 360px; box-sizing: border-box; }
+        
+        /* Typography Updates */
+        h2 { margin-top: 0; margin-bottom: 0.5rem; color: var(--text); font-size: 1.6rem; font-weight: 700; }
+        .subtitle { color: var(--text-light); font-size: 0.95rem; margin-bottom: 1.5rem; font-weight: 500; }
+        
+        .timer { font-size: 1.5rem; font-weight: bold; color: #D85A30; margin-bottom: 0.5rem; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-light); }
+        
+        /* Goal Progress Bar */
+        .progress-container { background: #E5E7EB; border-radius: 8px; height: 10px; width: 100%; margin-bottom: 1.5rem; overflow: hidden; position: relative; }
+        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: width 0.1s ease; }
+
+        .problem { font-size: 3.5rem; font-weight: bold; margin: 1.5rem 0; color: var(--text); letter-spacing: -1px; }
+        input { width: 140px; font-size: 2rem; text-align: center; border: 2px solid #D1D5DB; border-radius: 8px; padding: 5px; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.2); }
+        
+        .btn { background: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; width: 100%; box-sizing: border-box; transition: background 0.2s ease; margin-top: 0.5rem; }
+        .btn:hover { background: #433aa1; }
+        
+        /* Custom Modern Mode Selector Segment Cards */
+        .mode-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+        .mode-card { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; text-align: left; }
+        .mode-card:hover { border-color: #C7C3EB; background: #FAF9FE; }
+        
+        /* Hide native radio fully */
+        .mode-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        
+        .mode-details { display: flex; flex-direction: column; }
+        .mode-title { font-weight: 600; color: var(--text); font-size: 0.95rem; }
+        .mode-meta { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
+        .mode-badge { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 4px 8px; border-radius: 6px; }
+        
+        /* Selected State Styling */
+        .mode-card.selected { border-color: var(--primary); background: var(--primary-light); }
+        .mode-card.selected .mode-title { color: var(--primary); }
+        .mode-card.selected .mode-badge { color: white; background: var(--primary); }
+        
+        .feedback { height: 1.5rem; margin-top: 1rem; font-weight: 500; color: var(--text-light); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="game-header" style="display:none;">
+        <div class="timer" id="timer">90s</div>
+        <div class="stats">
+            <span>Correct: <span id="correct">0</span></span>
+            <span>Accuracy: <span id="accuracy">0%</span></span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+    
+    <div id="game-zone" style="display:none;">
+        <div class="problem" id="problem">? × ?</div>
+        <input type="text" pattern="[0-9]*" inputmode="numeric" id="answer" autocomplete="off">
+        <div class="feedback" id="feedback">Type the answer!</div>
+    </div>
+
+    <div id="start-zone">
+        <h2>Advanced Math Sprint</h2>
+        <div class="subtitle">Goal: Hit 20 Correct Answers</div>
+        
+        <div class="mode-container">
+            <!-- Card 1: Multiplication -->
+            <label class="mode-card selected" onclick="selectMode(this)">
+                <input type="radio" name="gameMode" value="multiplication" checked>
+                <div class="mode-details">
+                    <span class="mode-title">Multiplication Only</span>
+                    <span class="mode-meta">2-digit × 1-digit</span>
+                </div>
+                <span class="mode-badge">80s</span>
+            </label>
+
+            <!-- Card 2: Division -->
+            <label class="mode-card" onclick="selectMode(this)">
+                <input type="radio" name="gameMode" value="division">
+                <div class="mode-details">
+                    <span class="mode-title">Division Only</span>
+                    <span class="mode-meta">2-3 digit ÷ 1-digit</span>
+                </div>
+                <span class="mode-badge">90s</span>
+            </label>
+
+            <!-- Card 3: Combined Mix -->
+            <label class="mode-card" onclick="selectMode(this)">
+                <input type="radio" name="gameMode" value="combined">
+                <div class="mode-details">
+                    <span class="mode-title">Combined Mix</span>
+                    <span class="mode-meta">Randomly interleaved</span>
+                </div>
+                <span class="mode-badge">90s</span>
+            </label>
+        </div>
+
+        <button class="btn" onclick="startGame()">Start Drill</button>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let total = 0;
+    let timeLeft = 90;
+    let timerId = null;
+    let currentAns = 0;
+    let chosenMode = 'multiplication';
+    const GOAL = 20;
+
+    const probEl = document.getElementById('problem');
+    const ansEl = document.getElementById('answer');
+    const feedEl = document.getElementById('feedback');
+    const scoreEl = document.getElementById('correct');
+    const accEl = document.getElementById('accuracy');
+    const timerEl = document.getElementById('timer');
+    const progressBar = document.getElementById('progress-bar');
+
+    // UI Interactive Selection Engine
+    function selectMode(element) {
+        // Remove class from all cards
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        // Add class to currently clicked container element
+        element.classList.add('selected');
+    }
+
+    function generateProblem() {
+        let currentType = chosenMode;
+        
+        if (chosenMode === 'combined') {
+            currentType = Math.random() < 0.5 ? 'multiplication' : 'division';
+        }
+
+        if (currentType === 'multiplication') {
+            let a = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+            let b = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+            
+            currentAns = a * b;
+            probEl.textContent = `${a} × ${b}`;
+        } else {
+            let divisor = Math.floor(Math.random() * (9 - 2 + 1)) + 2; 
+            let targetQuotient = Math.floor(Math.random() * (120 - 10 + 1)) + 10;
+            let dividend = targetQuotient * divisor;
+            
+            currentAns = targetQuotient;
+            probEl.textContent = `${dividend} ÷ ${divisor}`;
+        }
+        
+        ansEl.value = '';
+    }
+
+    function startGame() {
+        chosenMode = document.querySelector('input[name="gameMode"]:checked').value;
+
+        if (chosenMode === 'multiplication') {
+            timeLeft = 80;
+        } else {
+            timeLeft = 90;
+        }
+
+        score = 0;
+        total = 0;
+        scoreEl.textContent = '0';
+        accEl.textContent = '0%';
+        timerEl.textContent = timeLeft + 's';
+        progressBar.style.width = '0%';
+        feedEl.textContent = 'Go!';
+        
+        document.getElementById('start-zone').style.display = 'none';
+        document.getElementById('game-header').style.display = 'block';
+        document.getElementById('game-zone').style.display = 'block';
+        
+        generateProblem();
+        ansEl.focus();
+        
+        timerId = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft + 's';
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+    }
+
+    function updateProgressBar() {
+        let percentage = (score / GOAL) * 100;
+        if (percentage > 100) percentage = 100; 
+        progressBar.style.width = percentage + '%';
+    }
+
+    function endGame() {
+        clearInterval(timerId);
+        document.getElementById('game-zone').style.display = 'none';
+        document.getElementById('game-header').style.display = 'none';
+        document.getElementById('start-zone').style.display = 'block';
+        
+        let finalAcc = total > 0 ? Math.round((score / total) * 100) : 0;
+        let goalStatus = score >= GOAL 
+            ? `<h2 style="color: var(--success);">Goal Smashed! 🎉</h2>` 
+            : `<h2 style="color: #D85A30;">So Close!</h2>`;
+
+        document.getElementById('start-zone').innerHTML = `
+            ${goalStatus}
+            <p style="margin-bottom:2rem;">You answered <strong>${score}</strong> correctly out of ${total} attempts with an accuracy of <strong>${finalAcc}%</strong>.</p>
+            <button class="btn" onclick="location.reload()">Try Again</button>
+        `;
+    }
+
+    ansEl.addEventListener('input', () => {
+        const userAns = parseInt(ansEl.value);
+        
+        if (!isNaN(userAns)) {
+            if (userAns === currentAns) {
+                score++;
+                total++;
+                scoreEl.textContent = score;
+                accEl.textContent = Math.round((score / total) * 100) + '%';
+                updateProgressBar();
+                generateProblem(); 
+            }
+        }
+    });
+
+    ansEl.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && ansEl.value !== '') {
+            const userAns = parseInt(ansEl.value);
+            if (userAns !== currentAns) {
+                total++;
+                accEl.textContent = Math.round((score / total) * 100) + '%';
+                ansEl.value = ''; 
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

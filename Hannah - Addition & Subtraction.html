@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hannah's Math Sprint</title>
+    <style>
+        :root {
+            --primary: #534AB7;
+            --bg: #F9FAFB;
+            --text: #111827;
+        }
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: var(--bg); }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; width: 320px; }
+        .timer { font-size: 1.5rem; font-weight: bold; color: #D85A30; margin-bottom: 1rem; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem; color: #6B7280; }
+        .problem { font-size: 3rem; font-weight: bold; margin: 1.5rem 0; color: var(--text); }
+        input { width: 120px; font-size: 2rem; text-align: center; border: 2px solid #D1D5DB; border-radius: 8px; padding: 5px; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.2); }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .feedback { height: 1.5rem; margin-top: 1rem; font-weight: 500; color: #6B7280; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="timer" id="timer">60s</div>
+    <div class="stats">
+        <span>Correct: <span id="correct">0</span></span>
+        <span>Accuracy: <span id="accuracy">0%</span></span>
+    </div>
+    
+    <div id="game-zone" style="display:none;">
+        <div class="problem" id="problem">? ± ?</div>
+        <input type="text" pattern="[0-9]*" inputmode="numeric" id="answer" autocomplete="off">
+        <div class="feedback" id="feedback">Type the answer!</div>
+    </div>
+
+    <div id="start-zone">
+        <h2>Ready, Hannah?</h2>
+        <p>Mixed Subtraction & Addition Sprint</p>
+        <button class="btn" onclick="startGame()">Start 60s Drill</button>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let total = 0;
+    let timeLeft = 60;
+    let timerId = null;
+    let currentAns = 0;
+
+    const probEl = document.getElementById('problem');
+    const ansEl = document.getElementById('answer');
+    const feedEl = document.getElementById('feedback');
+    const scoreEl = document.getElementById('correct');
+    const accEl = document.getElementById('accuracy');
+    const timerEl = document.getElementById('timer');
+
+    function generateProblem() {
+        // 50% chance for Addition, 50% chance for Subtraction
+        const isAddition = Math.random() < 0.5;
+
+        if (isAddition) {
+            // Addition: [11-24] + [1-9]
+            let a = Math.floor(Math.random() * (24 - 11 + 1)) + 11;
+            let b = Math.floor(Math.random() * 9) + 1;
+            
+            currentAns = a + b;
+            probEl.textContent = `${a} + ${b}`;
+        } else {
+            // Subtraction: 1-24 range (no negative results)
+            let a = Math.floor(Math.random() * 24) + 1;
+            let b = Math.floor(Math.random() * 24) + 1;
+            if (a < b) [a, b] = [b, a];
+            
+            currentAns = a - b;
+            probEl.textContent = `${a} - ${b}`;
+        }
+        
+        ansEl.value = '';
+    }
+
+    function startGame() {
+        score = 0;
+        total = 0;
+        timeLeft = 60;
+        scoreEl.textContent = '0';
+        accEl.textContent = '0%';
+        feedEl.textContent = 'Keep going!';
+        document.getElementById('start-zone').style.display = 'none';
+        document.getElementById('game-zone').style.display = 'block';
+        
+        generateProblem();
+        ansEl.focus();
+        
+        timerId = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft + 's';
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+    }
+
+    function endGame() {
+        clearInterval(timerId);
+        document.getElementById('game-zone').style.display = 'none';
+        document.getElementById('start-zone').style.display = 'block';
+        
+        let finalAcc = total > 0 ? Math.round((score / total) * 100) : 0;
+        document.getElementById('start-zone').innerHTML = `
+            <h2>Time's Up!</h2>
+            <p>Score: ${score} correct out of ${total} attempts</p>
+            <p>Accuracy: ${finalAcc}%</p>
+            <button class="btn" onclick="location.reload()">Try Again</button>
+        `;
+    }
+
+    // Zetamac Style Instant Checking
+    ansEl.addEventListener('input', () => {
+        const userAns = parseInt(ansEl.value);
+        
+        if (!isNaN(userAns)) {
+            if (userAns === currentAns) {
+                score++;
+                total++;
+                scoreEl.textContent = score;
+                accEl.textContent = Math.round((score / total) * 100) + '%';
+                generateProblem(); 
+            }
+        }
+    });
+
+    // Track wrong answers on Enter if she gets stuck
+    ansEl.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter' && ansEl.value !== '') {
+            const userAns = parseInt(ansEl.value);
+            if (userAns !== currentAns) {
+                total++;
+                accEl.textContent = Math.round((score / total) * 100) + '%';
+                ansEl.value = ''; 
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
