@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <!-- Crucial for mobile responsive layout and zoom prevention -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Sprint Platform</title>
     <style>
         :root {
@@ -12,33 +15,41 @@
             --success: #1D9E75;
             --border: #E5E7EB;
         }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Removes ugly box flash on mobile tap */
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             display: flex; 
             flex-direction: column;
-            justify-content: center; 
+            justify-content: flex-start; /* Better for mobile scrolling layout if content overflows */
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
             background-color: var(--bg); 
+            padding: 1rem;
         }
         
-        /* Premium Tab System styling */
+        /* Mobile-responsive tab wrapper */
         .tab-wrapper {
             display: flex;
             background: #E5E7EB;
             padding: 4px;
             border-radius: 12px;
-            margin-bottom: 1.5rem;
-            width: 360px;
-            box-sizing: border-box;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 380px;
         }
         .tab-btn {
             flex: 1;
             background: none;
             border: none;
-            padding: 10px;
-            font-size: 0.9rem;
+            padding: 12px 10px; /* Larger tap targets for fingers */
+            font-size: 0.95rem;
             font-weight: 600;
             color: var(--text-light);
             cursor: pointer;
@@ -51,64 +62,89 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
 
-        .card { background: white; padding: 2.5rem 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 360px; box-sizing: border-box; }
+        /* Responsive Card Layout */
+        .card { 
+            background: white; 
+            padding: 2rem 1.5rem; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center; 
+            width: 100%; 
+            max-width: 380px; 
+            margin-bottom: 2rem;
+        }
         
-        /* Container Visibility */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Typography Updates */
-        h2 { margin-top: 0; margin-bottom: 0.5rem; color: var(--text); font-size: 1.6rem; font-weight: 700; }
+        h2 { margin-top: 0; margin-bottom: 0.5rem; color: var(--text); font-size: 1.5rem; font-weight: 700; }
         .subtitle { color: var(--text-light); font-size: 0.95rem; margin-bottom: 1.5rem; font-weight: 500; }
         
-        .timer { font-size: 1.5rem; font-weight: bold; color: #D85A30; margin-bottom: 0.5rem; }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-light); }
+        .timer { font-size: 1.75rem; font-weight: bold; color: #D85A30; margin-bottom: 0.5rem; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
         
-        /* Goal Progress Bar */
         .progress-container { background: #E5E7EB; border-radius: 8px; height: 10px; width: 100%; margin-bottom: 1.5rem; overflow: hidden; position: relative; }
         .progress-bar { background: var(--success); height: 100%; width: 0%; transition: width 0.1s ease; }
 
-        .problem { font-size: 3.5rem; font-weight: bold; margin: 1.5rem 0; color: var(--text); letter-spacing: -1px; }
-        input { width: 140px; font-size: 2rem; text-align: center; border: 2px solid #D1D5DB; border-radius: 8px; padding: 5px; }
+        /* Adjusted problem size so it doesn't wrap on tiny screens */
+        .problem { font-size: 3rem; font-weight: bold; margin: 1.25rem 0; color: var(--text); letter-spacing: -1px; }
+        
+        /* Mobile input enhancements */
+        input[type="number"] { 
+            width: 100%; 
+            max-width: 160px; 
+            font-size: 2.25rem; 
+            text-align: center; 
+            border: 2px solid #D1D5DB; 
+            border-radius: 12px; 
+            padding: 8px; 
+            /* Removes default native iOS styling shadows */
+            -webkit-appearance: none;
+            appearance: none;
+        }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.2); }
         
-        .btn { background: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; width: 100%; box-sizing: border-box; transition: background 0.2s ease; margin-top: 0.5rem; }
+        /* Big mobile tap target button */
+        .btn { background: var(--primary); color: white; border: none; padding: 16px 24px; border-radius: 12px; cursor: pointer; font-size: 1.05rem; font-weight: 600; width: 100%; transition: background 0.2s ease; margin-top: 0.5rem; }
         .btn:hover { background: #433aa1; }
         
-        /* Modern Mode Selector Segment Cards */
-        .mode-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-        .mode-card { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; text-align: left; }
+        .mode-container { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.75rem; }
+        
+        /* Mobile-friendly large selector cards */
+        .mode-card { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 1.1rem; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s ease; text-align: left; }
         .mode-card:hover { border-color: #C7C3EB; background: #FAF9FE; }
         
-        /* Hide native radio */
         .mode-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
         
-        .mode-details { display: flex; flex-direction: column; }
+        .mode-details { display: flex; flex-direction: column; padding-right: 8px; }
         .mode-title { font-weight: 600; color: var(--text); font-size: 0.95rem; }
-        .mode-meta { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
-        .mode-badge { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 4px 8px; border-radius: 6px; }
+        .mode-meta { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+        .mode-badge { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 5px 10px; border-radius: 6px; flex-shrink: 0; }
         
-        /* Selected State Styling */
         .mode-card.selected { border-color: var(--primary); background: var(--primary-light); }
         .mode-card.selected .mode-title { color: var(--primary); }
         .mode-card.selected .mode-badge { color: white; background: var(--primary); }
         
-        .feedback { height: 1.5rem; margin-top: 1rem; font-weight: 500; color: var(--text-light); font-size: 0.9rem; }
+        .feedback { height: 1.5rem; margin-top: 1rem; font-weight: 500; color: var(--text-light); font-size: 0.95rem; }
+
+        /* Tweaks for ultra-small screens like iPhone SE */
+        @media (max-width: 350px) {
+            .card { padding: 1.5rem 1rem; }
+            .problem { font-size: 2.5rem; }
+            .mode-title { font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
 
-<!-- Unified Top Navigation Tab Bar -->
 <div class="tab-wrapper">
-    <button class="tab-btn active" onclick="switchTab('basic')">Math Sprint</button>
-    <button class="tab-btn" onclick="switchTab('advanced')">Advanced Sprint</button>
+    <button id="btn-nav-basic" class="tab-btn active" onclick="switchTab('basic')">Math Sprint</button>
+    <button id="btn-nav-advanced" class="tab-btn" onclick="switchTab('advanced')">Advanced Sprint</button>
 </div>
 
 <div class="card">
     
-    <!-- ==================================================== -->
-    <!-- TAB 1: MATH SPRINT (BASIC)                           -->
-    <!-- ==================================================== -->
+    <!-- TAB 1: BASIC SPRINT -->
     <div id="tab-basic" class="tab-content active">
         <div id="basic-header" style="display:none;">
             <div class="timer" id="basic-timer">60s</div>
@@ -123,9 +159,12 @@
         
         <div id="basic-game-zone" style="display:none;">
             <div class="problem" id="basic-problem">? ± ?</div>
-            <input type="text" pattern="[0-9]*" inputmode="numeric" id="basic-answer" autocomplete="off">
+            <!-- Optimized for native number pad -->
+            <input type="number" inputmode="numeric" pattern="[0-9]*" id="basic-answer" autocomplete="off">
             <div class="feedback" id="basic-feedback">Type the answer!</div>
         </div>
+
+        <div id="basic-results-zone" style="display:none;"></div>
 
         <div id="basic-start-zone">
             <h2>Math Sprint</h2>
@@ -159,14 +198,11 @@
                     <span class="mode-badge">60s</span>
                 </label>
             </div>
-
-            <button class="btn" onclick="basicSprint.start()">Start Drill</button>
+            <button class="btn" onclick="basicSprint.start()">Start 60s Drill</button>
         </div>
     </div>
 
-    <!-- ==================================================== -->
-    <!-- TAB 2: ADVANCED MATH SPRINT                         -->
-    <!-- ==================================================== -->
+    <!-- TAB 2: ADVANCED SPRINT -->
     <div id="tab-advanced" class="tab-content">
         <div id="advanced-header" style="display:none;">
             <div class="timer" id="advanced-timer">90s</div>
@@ -181,9 +217,12 @@
         
         <div id="advanced-game-zone" style="display:none;">
             <div class="problem" id="advanced-problem">? × ?</div>
-            <input type="text" pattern="[0-9]*" inputmode="numeric" id="advanced-answer" autocomplete="off">
+            <!-- Optimized for native number pad -->
+            <input type="number" inputmode="numeric" pattern="[0-9]*" id="advanced-answer" autocomplete="off">
             <div class="feedback" id="advanced-feedback">Type the answer!</div>
         </div>
+
+        <div id="advanced-results-zone" style="display:none;"></div>
 
         <div id="advanced-start-zone">
             <h2>Advanced Math Sprint</h2>
@@ -217,7 +256,6 @@
                     <span class="mode-badge">90s</span>
                 </label>
             </div>
-
             <button class="btn" onclick="advancedSprint.start()">Start Drill</button>
         </div>
     </div>
@@ -225,9 +263,8 @@
 </div>
 
 <script>
-    // System Tab Switcher Engine
+    // Tab engine and game state handlers remain identical, ensuring rock-solid execution logic
     function switchTab(target) {
-        // Stop any running sprints when switching view modes
         basicSprint.resetToMenu();
         advancedSprint.resetToMenu();
 
@@ -235,24 +272,20 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
         if (target === 'basic') {
-            document.querySelector("[onclick=\"switchTab('basic')\"]").classList.add('active');
+            document.getElementById('btn-nav-basic').classList.add('active');
             document.getElementById('tab-basic').classList.add('active');
         } else {
-            document.querySelector("[onclick=\"switchTab('advanced')\"]").classList.add('active');
+            document.getElementById('btn-nav-advanced').classList.add('active');
             document.getElementById('tab-advanced').classList.add('active');
         }
     }
 
-    // Segment Card Dynamic Highlighting
     function selectCardDesign(element) {
         const structuralSiblings = element.parentElement.querySelectorAll('.mode-card');
         structuralSiblings.forEach(card => card.classList.remove('selected'));
         element.classList.add('selected');
     }
 
-    // ====================================================
-    // BASIC SPRINT CONTROLLER (TAB 1)                     -->
-    // ====================================================
     const basicSprint = {
         score: 0, total: 0, timeLeft: 60, timerId: null, currentAns: 0, chosenMode: 'addition', GOAL: 30,
         
@@ -286,6 +319,7 @@
             document.getElementById('basic-feedback').textContent = 'Keep going!';
             
             document.getElementById('basic-start-zone').style.display = 'none';
+            document.getElementById('basic-results-zone').style.display = 'none';
             document.getElementById('basic-header').style.display = 'block';
             document.getElementById('basic-game-zone').style.display = 'block';
             
@@ -309,33 +343,32 @@
             clearInterval(this.timerId);
             document.getElementById('basic-game-zone').style.display = 'none';
             document.getElementById('basic-header').style.display = 'none';
-            document.getElementById('basic-start-zone').style.display = 'block';
             
             let finalAcc = this.total > 0 ? Math.round((this.score / this.total) * 100) : 0;
             let statusHTML = this.score >= this.GOAL 
                 ? `<h2 style="color: var(--success);">Goal Smashed! 🎉</h2>` 
                 : `<h2 style="color: #D85A30;">So Close!</h2>`;
 
-            document.getElementById('basic-start-zone').innerHTML = `
+            const resultsZone = document.getElementById('basic-results-zone');
+            resultsZone.innerHTML = `
                 ${statusHTML}
                 <p>You answered <strong>${this.score}</strong> correctly out of ${this.total} attempts.</p>
                 <p>Accuracy: ${finalAcc}%</p>
                 <p style="font-size:0.9rem; color:#6B7280; margin-bottom:2rem;">Target Goal was: ${this.GOAL}</p>
-                <button class="btn" onclick="location.reload()">Try Again</button>
+                <button class="btn" onclick="basicSprint.resetToMenu()">Play Again</button>
             `;
+            resultsZone.style.display = 'block';
         },
         
         resetToMenu: function() {
             clearInterval(this.timerId);
             document.getElementById('basic-game-zone').style.display = 'none';
             document.getElementById('basic-header').style.display = 'none';
+            document.getElementById('basic-results-zone').style.display = 'none';
             document.getElementById('basic-start-zone').style.display = 'block';
         }
     };
 
-    // ====================================================
-    // ADVANCED SPRINT CONTROLLER (TAB 2)                 -->
-    // ====================================================
     const advancedSprint = {
         score: 0, total: 0, timeLeft: 90, timerId: null, currentAns: 0, chosenMode: 'multiplication', GOAL: 20,
         
@@ -370,6 +403,7 @@
             document.getElementById('advanced-feedback').textContent = 'Go!';
             
             document.getElementById('advanced-start-zone').style.display = 'none';
+            document.getElementById('advanced-results-zone').style.display = 'none';
             document.getElementById('advanced-header').style.display = 'block';
             document.getElementById('advanced-game-zone').style.display = 'block';
             
@@ -393,35 +427,33 @@
             clearInterval(this.timerId);
             document.getElementById('advanced-game-zone').style.display = 'none';
             document.getElementById('advanced-header').style.display = 'none';
-            document.getElementById('advanced-start-zone').style.display = 'block';
             
             let finalAcc = this.total > 0 ? Math.round((this.score / this.total) * 100) : 0;
             let statusHTML = this.score >= this.GOAL 
                 ? `<h2 style="color: var(--success);">Goal Smashed! 🎉</h2>` 
                 : `<h2 style="color: #D85A30;">So Close!</h2>`;
 
-            document.getElementById('advanced-start-zone').innerHTML = `
+            const resultsZone = document.getElementById('advanced-results-zone');
+            resultsZone.innerHTML = `
                 ${statusHTML}
                 <p>You answered <strong>${this.score}</strong> correctly out of ${this.total} attempts.</p>
                 <p>Accuracy: ${finalAcc}%</p>
                 <p style="font-size:0.9rem; color:#6B7280; margin-bottom:2rem;">Target Goal was: ${this.GOAL}</p>
-                <button class="btn" onclick="location.reload()">Try Again</button>
+                <button class="btn" onclick="advancedSprint.resetToMenu()">Play Again</button>
             `;
+            resultsZone.style.display = 'block';
         },
         
         resetToMenu: function() {
             clearInterval(this.timerId);
             document.getElementById('advanced-game-zone').style.display = 'none';
             document.getElementById('advanced-header').style.display = 'none';
+            document.getElementById('advanced-results-zone').style.display = 'none';
             document.getElementById('advanced-start-zone').style.display = 'block';
         }
     };
 
-    // ====================================================
-    // INPUT LISTENERS ENGINE                             -->
-    // ====================================================
-    
-    // Basic Tab Listeners
+    // DOM LISTENERS
     document.getElementById('basic-answer').addEventListener('input', () => {
         const ans = parseInt(document.getElementById('basic-answer').value);
         if (!isNaN(ans) && ans === basicSprint.currentAns) {
@@ -443,7 +475,6 @@
         }
     });
 
-    // Advanced Tab Listeners
     document.getElementById('advanced-answer').addEventListener('input', () => {
         const ans = parseInt(document.getElementById('advanced-answer').value);
         if (!isNaN(ans) && ans === advancedSprint.currentAns) {
@@ -465,6 +496,5 @@
         }
     });
 </script>
-
 </body>
 </html>
